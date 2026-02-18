@@ -66,37 +66,39 @@ End Sub
 ' Optimized procedure to initialize filtered mails for last 2 weeks - FIXED VERSION
 Sub InitializeFilteredMails(olFolder As Outlook.MAPIFolder)
     Dim olMail As Object
+    Dim olItems As Outlook.Items
     Dim cutoffDate As Date
     Dim mailIndex As Long
     Dim itemCount As Long
     Dim processedCount As Long
     Dim futureEmailCount As Long
     Dim consecutiveOldEmails As Long
-    
+
     On Error GoTo ErrorHandler
-    
+
     ' FIXED: Always clear and recreate the filteredMails dictionary
     Call ClearFilteredMails
 
     ' Set cutoff date to 2 weeks ago
     cutoffDate = Date - 14
-    
+
     ' Create collection object to store filtered mails
     Set filteredMails = CreateObject("Scripting.Dictionary")
     mailIndex = 0
-    itemCount = olFolder.Items.Count
+    Set olItems = olFolder.Items
+    itemCount = olItems.Count
     processedCount = 0
     futureEmailCount = 0
     consecutiveOldEmails = 0
-    
+
     ' Sort items by ReceivedTime in descending order (newest first)
-    olFolder.Items.Sort "[ReceivedTime]", True
-    
+    olItems.Sort "[ReceivedTime]", True
+
     Debug.Print "Processing " & itemCount & " items in folder..."
     Debug.Print "Cutoff date: " & Format(cutoffDate, "yyyy-mm-dd hh:nn:ss")
     Debug.Print "Today's date: " & Format(Date, "yyyy-mm-dd")
-    
-    For Each olMail In olFolder.Items
+
+    For Each olMail In olItems
         If TypeOf olMail Is MailItem Then
             processedCount = processedCount + 1
             
@@ -161,6 +163,7 @@ ErrorHandler:
     
 CleanupExit:
     Set olMail = Nothing
+    Set olItems = Nothing
     On Error GoTo 0
 End Sub
 
